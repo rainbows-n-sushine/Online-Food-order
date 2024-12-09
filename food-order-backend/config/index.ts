@@ -1,0 +1,1 @@
+export const MONGO_URI="mongodb+srv://jayaddisu:<jayaddisu5353>@portfolio.cwnpm.mongodb.net/"

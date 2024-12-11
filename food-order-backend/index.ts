@@ -1,26 +1,26 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import {AdminRouter, VendorRouter} from "./routes";
 import bodyParser from "body-parser";
-import mongoose,{ConnectOptions} from "mongoose";
+import mongoose from "mongoose";
 import {MONGO_URI} from "./config"
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 8000;
-
-// app.use(express.json());
-// app.use(express.json())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 
 app.use("/admin", AdminRouter);
 app.use('/vendor',VendorRouter);
+const PORT = process.env.PORT || 3000;
  
 mongoose.connect(MONGO_URI,{
   autoIndex:true,
   autoCreate:true,
-  user:'jayaddisu',
-  pass:"jayaddisu5353"
-}).then((result)=>{
+  user:process.env.USER,
+  pass:process.env.PASS
+}).then(()=>{
   console.log("Mongoose is connected :)")
 }).catch((err)=>{
   console.log('error ',err)

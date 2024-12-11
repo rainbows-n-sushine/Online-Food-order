@@ -1,1 +1,1 @@
-export const MONGO_URI="mongodb+srv://jayaddisu:<jayaddisu5353>@portfolio.cwnpm.mongodb.net/food-order?retryWrites=true&w=majority"
+export const MONGO_URI="mongodb://localhost:27017/food-order"

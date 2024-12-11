@@ -18,10 +18,7 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
    //generate salt
    const salt=await GenerateSalt();
     const hashedPassword=await GeneratePassword(password,salt)
-    console.log('this is the salt: ',salt)
-    console.log('this is teh password: ',hashedPassword)
 
-   
 
         const newVendor= await Vendor.create({
             name:name,
@@ -39,7 +36,7 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
 
 
         })
-        res.send(newVendor)
+        res.send(newVendor.toJSON())
         console.log(newVendor)
         return;
 

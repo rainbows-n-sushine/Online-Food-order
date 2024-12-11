@@ -44,18 +44,45 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
         if(error){
             res.send({success:false, message:error})
         }
-
     }
-    
-
     }
     
     export const GetVendors=async(req:Request,res:Response,next:NextFunction)=>{
+
+        try{
+       const vendors=await Vendor.find()
+       if(vendors!==null){
+        res.send(vendors)
+        return;
+       }
+       res.send({message:"there is no vendor data available"})
+        }catch(error){
+            if(error){
+                console.log("error: ",error)
+            }
+
+        }
     
         
     }
     
     export const GetVendorByID=async(req:Request,res:Response,next:NextFunction)=>{
+       
+        try{
+            const id=req.params.id
+            const vendor=await Vendor.findById(id)
+            if(vendor){
+                res.send(vendor)
+                return;
+            }
+            res.send({message:"Vendor is not found"})
+            return;
+
+        }catch(error){
+            if(error){
+                console.log("error: ",error)
+            }
+        }
         
     
         

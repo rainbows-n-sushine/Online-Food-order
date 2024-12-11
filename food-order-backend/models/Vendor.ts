@@ -11,7 +11,7 @@ interface vendorDoc extends Document{
     password:string,
     salt:string,
     serviceAvailable:boolean,
-    coverImages:[string],
+    coverImages:string[],
     rating:number,
     // foods:any
 }
@@ -35,8 +35,8 @@ const VendorSchema=new Schema({
     // }]
 
 },{
-    toJSON:{
-        transform(doc,ret){
+    toJSON: {
+        transform(doc:vendorDoc ,ret:any){
             delete ret.password;
             delete ret.salt;
             delete ret.__v;

@@ -36,7 +36,7 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
 
 
         })
-        res.send(newVendor.toJSON())
+        res.send(newVendor)
         console.log(newVendor)
         return;
 

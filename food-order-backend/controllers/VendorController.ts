@@ -1,20 +1,25 @@
-// import {Request,Response,NextFunction} from "express";
-// import {CreateVendorInput} from "../dto"
+import {Request,Response, NextFunction} from "express";
+import {VendorLoginInputs} from "../dto";
+import {findVendor} from "./"
+import {ValidatePassword} from "../utility"
 
-// export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
-// const {name, ownerName, email ,foodType, pincode, address,phone, password}= <CreateVendorInput>req.body;
+export const VendorLogin=async(req:Request,res:Response,next:NextFunction)=>{
 
-// return res.send({name, ownerName, email ,foodType, pincode, address,phone, password})
+    const {email,password}= <VendorLoginInputs> req.body;
+        const existingVendor= await findVendor("",email)
+        if(existingVendor!==null){
+            //validate and give acces
+       const validation= await ValidatePassword(password,existingVendor.password,existingVendor.salt)
+       if(validation){
+            res.send({success:true, message:"Login successful", vendor:existingVendor})
+            return;
+        }
+        else{
+            res.send({success:false, message:"Password is invalid"})
+            return;
+        }
+        }
+        res.send({message:"incorrect credentials"})
+        return;
 
-// }
-
-// export const GetVendors=async(req:Request,res:Response,next:NextFunction)=>{
-
-    
-// }
-
-// export const GetVendorByID=async(req:Request,res:Response,next:NextFunction)=>{
-    
-
-    
-// }
+}

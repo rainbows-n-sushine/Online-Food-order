@@ -72,7 +72,7 @@ export const UpdateVendorProfile=async(req:Request,res:Response,next:NextFunctio
         existingVendor.phone=phone
         
        const savedResults=await existingVendor.save()
-       res.send({savedResults})
+       res.send(savedResults)
        return ;
     }else{
         res.send({message:"this user doesnt exist",success:false})
@@ -82,19 +82,39 @@ export const UpdateVendorProfile=async(req:Request,res:Response,next:NextFunctio
     console.log('U need to first sign in!')
     return;
    }
-    
-
     }catch(error){
         if(error){
             console.log("Error: ",error)
         }
 
     }
-   
-
 }
 
 export const UpdateVendorService=async(req:Request,res:Response,next:NextFunction)=>{
-    
+
+    try{
+        const user=req.user;
+
+   if(user){
+    const existingVendor=await findVendor(user._id)
+    if(existingVendor!==null){
+        existingVendor.serviceAvailable=!existingVendor.serviceAvailable
+       const savedResults=await existingVendor.save()
+       res.send(savedResults)
+       return ;
+    }else{
+        res.send({message:"this user doesnt exist",success:false})
+        return;
+    }
+   } else{
+    console.log('U need to first sign in!')
+    return;
+   }
+    }catch(error){
+        if(error){
+            console.log("Error: ",error)
+        }
+
+    }
 
 }

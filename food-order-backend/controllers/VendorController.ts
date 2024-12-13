@@ -1,7 +1,9 @@
 import {Request,Response, NextFunction} from "express";
-import {VendorLoginInputs} from "../dto";
+import {VendorLoginInputs,EditVendorInputs} from "../dto";
 import {findVendor} from "./"
 import {ValidatePassword,GenerateSignature} from "../utility"
+import { Vendor } from "../models";
+
 
 
 export const VendorLogin=async(req:Request,res:Response,next:NextFunction)=>{
@@ -15,7 +17,7 @@ export const VendorLogin=async(req:Request,res:Response,next:NextFunction)=>{
             
             const signature= await GenerateSignature({
                 _id:existingVendor.id,
-                foodType:existingVendor.foodType,
+                foodTypes:existingVendor.foodTypes,
                 name:existingVendor.name,
                 email:existingVendor.email,
 
@@ -55,7 +57,40 @@ export const GetVendorProfile=async(req:Request,res:Response,next:NextFunction)=
 }
 
 export const UpdateVendorProfile=async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+        const user=req.user;
+
+   const {name,foodTypes,address,phone} =<EditVendorInputs>req.body
+
+
+   if(user){
+    const existingVendor=await findVendor(user._id)
+    if(existingVendor!==null){
+        existingVendor.name=name
+        existingVendor.foodTypes=foodTypes
+        existingVendor.address=address
+        existingVendor.phone=phone
+        
+       const savedResults=await existingVendor.save()
+       res.send({savedResults})
+       return ;
+    }else{
+        res.send({message:"this user doesnt exist",success:false})
+        return;
+    }
+   } else{
+    console.log('U need to first sign in!')
+    return;
+   }
     
+
+    }catch(error){
+        if(error){
+            console.log("Error: ",error)
+        }
+
+    }
+   
 
 }
 

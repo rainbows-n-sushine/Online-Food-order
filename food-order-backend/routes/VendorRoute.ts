@@ -4,10 +4,11 @@ import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService } from '../c
 import { Authenticate } from '../middlewares';
 
 const router= express.Router();
+router.use(Authenticate)
 router.post('/login',VendorLogin);
-router.get('/profile',Authenticate,GetVendorProfile)
-router.patch('/profile',Authenticate, UpdateVendorProfile)
-router.patch('/service',Authenticate, UpdateVendorService)
+router.get('/profile',GetVendorProfile)
+router.patch('/profile', UpdateVendorProfile)
+router.patch('/service', UpdateVendorService)
 
 router.get('/',(req:Request,res:Response,next:NextFunction)=>{
     res.json('Welcome to the vendor route')

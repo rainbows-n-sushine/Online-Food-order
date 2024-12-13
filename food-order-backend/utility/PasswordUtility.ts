@@ -26,9 +26,13 @@ export const GenerateSignature=async(payload:VendorPayload)=>{
 
 export const ValidateSignature=async(req:Request)=>{
     const signature=req.get('Authorization');
-    if(signature){
-        const payload= await jwt.verify(signature.split(" ")[1],APP_SECRET) as AuthPayload 
+
+    if(signature && signature.startsWith("Bearer")){
+        const token= signature.split(" ")[1]
+        const payload= await jwt.verify(token,APP_SECRET) as AuthPayload 
+        console.log("this is auth payload"+payload)
         req.user=payload;
+        console.log('this is user: ',req.user)
         return true;
 
     }

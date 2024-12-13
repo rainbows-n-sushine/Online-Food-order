@@ -20,7 +20,7 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
     
     try{
 
-        const {name, ownerName, email ,foodType, pincode, address,phone, password}= <CreateVendorInput>req.body;
+        const {name, ownerName, email ,foodTypes, pincode, address,phone, password}= <CreateVendorInput>req.body;
         const existingVendor=await findVendor('',email)
 
         if(existingVendor!==null){
@@ -36,7 +36,7 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
             name:name,
             ownerName:ownerName, 
             email:email ,
-            foodType:foodType, 
+            foodTypes:foodTypes, 
             pincode:pincode, 
             address:address,
             phone:phone, 

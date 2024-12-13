@@ -6,7 +6,7 @@ export interface CreateVendorInput{
     address:string;
     phone:string;
     email:string;
-    password:string      
+    password:string    
 } 
 
 export interface VendorLoginInputs{

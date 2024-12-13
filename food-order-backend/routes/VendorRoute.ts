@@ -1,6 +1,6 @@
 import express,{Request, Response, NextFunction} from 'express';
 import {VendorLogin} from "../controllers"
-import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService } from '../controllers';
+import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService ,AddFood} from '../controllers';
 import { Authenticate } from '../middlewares';
 
 const router= express.Router();
@@ -9,6 +9,9 @@ router.post('/login',VendorLogin);
 router.get('/profile',GetVendorProfile)
 router.patch('/profile', UpdateVendorProfile)
 router.patch('/service', UpdateVendorService)
+
+router.post('/food',AddFood)
+router.get("/foods")
 
 router.get('/',(req:Request,res:Response,next:NextFunction)=>{
     res.json('Welcome to the vendor route')

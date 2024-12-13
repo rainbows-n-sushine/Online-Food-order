@@ -35,6 +35,20 @@ export const VendorLogin=async(req:Request,res:Response,next:NextFunction)=>{
 }
 
 export const GetVendorProfile=async(req:Request,res:Response,next:NextFunction)=>{
+    const user=req.user;
+    if(user){
+       const existingVendor=await findVendor(user._id)
+       if(existingVendor!==null){
+            res.send(existingVendor)
+            return;
+       }
+       res.send({message:"Vendor information not found"});
+       return;
+    }else{
+        res.send({message:"User is not authorized"})
+        return;
+    }
+
 
 
 

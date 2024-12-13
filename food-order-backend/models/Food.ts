@@ -15,7 +15,7 @@ interface foodDoc extends Document{
 }
 
 const FoodSchema=new Schema({
-    vendord:{type:String},
+    vendorId:{type:String},
     name:{type:String,required:true},
     description:{type:String,required:true},
     price:{type:Number,required:true},

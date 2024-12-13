@@ -151,3 +151,17 @@ export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 
+export const GetFoods=async(req:Request,res:Response,next:NextFunction)=>{
+    const user=req.user
+    if(user){  
+        const foods=await Food.find({vendorId:user._id})
+        console.log('this is foods',foods )
+        if(foods!==null){
+            res.send({foods:foods})
+            return;
+
+        }
+        res.send({message:"no food under that vendor"})
+        return;
+    }
+}

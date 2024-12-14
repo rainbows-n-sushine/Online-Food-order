@@ -122,7 +122,26 @@ export const UpdateVendorService=async(req:Request,res:Response,next:NextFunctio
 export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
 
     const user=req.user
+
+    
     if(user){       
+        const files=req.files as [Express.Multer.File]
+       
+        console.log("this is files", files)
+       
+         
+         const images=files.map((file:Express.Multer.File)=>{
+           return file.filename
+            console.log("this is th efile: ",file)
+            
+
+         })
+
+        console.log("this is images", images)
+
+
+
+       
         const {name,description,category,foodType,readyTime,price}=<CreateFoodInputs>req.body
         const vendor= await findVendor(user._id)
         if(vendor!==null){
@@ -134,7 +153,7 @@ export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
                 foodType:foodType,
                 readyTime:readyTime,
                 price:price,
-                images:["mock.jpg"],
+                images:images,
                 rating:0
             })
             vendor.foods.push(createdFood)

@@ -10,8 +10,9 @@ const imageStorage=multer.diskStorage({
         cb(null,"images")
     },
     filename:(req,file,cb)=>{
-        cb(null,file.originalname)
-      //cb(null,new Date().toISOString()+"_"+file.originalname)
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        const newFilename = `${timestamp}_${file.originalname}`;
+        cb(null, newFilename);
     }
 })
 const images=multer({storage:imageStorage}).array("images",10)

@@ -19,7 +19,7 @@ export const ValidatePassword=async(enteredPassword:string,savedPassword:string,
 
 }
 export const GenerateSignature=async(payload:VendorPayload)=>{
-    const signature=  jwt.sign(payload,APP_SECRET,{expiresIn:"5d"})
+    const signature=  jwt.sign(payload,APP_SECRET,{expiresIn:"10d"})
         return signature 
 
 }

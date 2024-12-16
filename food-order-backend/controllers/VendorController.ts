@@ -119,6 +119,31 @@ export const UpdateVendorService=async(req:Request,res:Response,next:NextFunctio
 
 }
 
+export const UpdateVendorCoverImage=async(req:Request,res:Response,next:NextFunction)=>{
+    const user=req.user
+    console.log('this is the user',user)
+    if(user){
+        const existingVendor=await findVendor(user._id)
+        if (existingVendor!==null){
+            const files=req.files as [Express.Multer.File]
+            const images=files.map(file=>{
+                return file.originalname
+            })
+
+            existingVendor.coverImages.push(...images)
+          const result=await existingVendor.save()
+          res.json(result)
+          return;
+        }
+        res.json('the vendor information doesnt exist')
+        return
+    }else{
+        res.json({message:"User is not authorized"})
+        return
+    }
+    
+
+}
 export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
 
     const user=req.user

@@ -1,5 +1,5 @@
 import express,{Application} from "express";
-import {AdminRouter, VendorRouter} from "../routes";
+import {AdminRouter, VendorRouter,ShoppingRouter} from "../routes";
 import bodyParser from "body-parser";
 import dotenv from 'dotenv';
 import path from "path"
@@ -13,6 +13,7 @@ app.use("/images",express.static(path.join(__dirname,"images")))
 
 app.use("/admin", AdminRouter);
 app.use('/vendor',VendorRouter);
+app.use('/shopping',ShoppingRouter)
 return app;
 
 }

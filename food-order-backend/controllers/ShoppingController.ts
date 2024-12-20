@@ -4,15 +4,16 @@ import {Vendor} from "../models"
 
 export const GetFoodAvailability=async(req:Request,res:Response,next:NextFunction)=>{
     const pincode=req.params.pincode;
-    const result= await Vendor.find({pincode:pincode, serviceAvailable:false})
+    const result= await Vendor.find({pincode:pincode, serviceAvailable:true})
     .sort([["rating","descending"]])
     .populate('foods')
-    if(result!==null){
+    if(result.length>0){
         res.status(200).send(result);
         console.log('this is foods in get food availability: ', result)
         return;
     }
-   res.status(400).send({"message":"Data not found"})
+   res.status(400).json({"message":"Data not found"})
+   return;
 
 }
 export const GetTopRestaurants=async(req:Request,res:Response,next:NextFunction)=>{

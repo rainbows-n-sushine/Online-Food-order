@@ -14,4 +14,4 @@ router.get('/',(req:Request,res:Response,next:NextFunction)=>{
 
 })
 
-export {router as AdminRouter}
+export {router as AdminRoute}

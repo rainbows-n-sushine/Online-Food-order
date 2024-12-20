@@ -31,4 +31,4 @@ router.get('/',(req:Request,res:Response,next:NextFunction)=>{
     res.json('Welcome to the vendor route')
     
 })
-export {router as VendorRouter}
+export {router as VendorRoute}

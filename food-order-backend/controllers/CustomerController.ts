@@ -1,8 +1,8 @@
 import {Response ,Request,NextFunction} from "express";
-import {CreateCustomerInputs} from "../dto"
+import {CreateCustomerInputs,UserLoginInputs} from "../dto"
 import {plainToClass} from "class-transformer"
-import { validate } from "class-validator";
-import { GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, OnRequestOTP } from "../utility";
+import { validate, ValidationError } from "class-validator";
+import { GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, OnRequestOTP, ValidateSignature,ValidatePassword } from "../utility";
 import {Customer} from "../models"
 
 export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
@@ -25,8 +25,9 @@ export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
    }
  const NewCustomer=await Customer.create({
     email:email,
-    password:password,
+    password:userPassword,
     firstName:"",
+    salt:salt,
     lastName:'',
     address:"",
     phone:phone,
@@ -65,6 +66,39 @@ export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
 }
 export const CustomerLogin=async(req:Request,res:Response,next:NextFunction)=>{
 
+    const loginInputs=plainToClass(UserLoginInputs,req.body)
+    const loginErrors=await validate(loginInputs,{validationError:{target:false}})
+    if (loginErrors.length>0){
+        res.status(400).send(loginErrors)
+        return;
+    }
+    const{password,email}=loginInputs
+  const customer=await Customer.findOne({email:email})
+  if(customer){
+    const validation=await ValidatePassword(password,customer.password,customer.salt)
+    if(validation){
+        // const {otp,expiry}= await GenerateOTP()
+        // customer.otp=otp
+        // const updatedCustomer=await customer.save()
+        // await OnRequestOTP(otp,updatedCustomer.phone)
+        
+        const signature=await GenerateSignature({
+            _id:customer._id,
+            email:customer.email,
+            verified:customer.verified
+        })
+        res.status(200).json({
+            signature:signature,
+            verfied:customer.verified,
+            email:customer.email
+
+        })
+        return;
+
+    }
+    res.status(400).json({message:"Login validation failed"})
+
+  }
 
 }
 export const CustomerVerify=async(req:Request,res:Response,next:NextFunction)=>{
@@ -73,8 +107,9 @@ export const CustomerVerify=async(req:Request,res:Response,next:NextFunction)=>{
     const customer=req.user
 
   if(customer){
+    
     const profile=await Customer.findById(customer._id)
-    if(profile){
+    if(profile!==null){
         if(profile.otp===parseInt(otp) && profile.otp_expiry>=new Date()){
             profile.verified=true
            const updatedCustomer= await profile.save()
@@ -85,12 +120,12 @@ export const CustomerVerify=async(req:Request,res:Response,next:NextFunction)=>{
                 email:updatedCustomer.email
 
             })
-            res.status(200).json({verified:updatedCustomer.verified,signature:signature,email:updatedCustomer.email})
+            res.status(201).json({verified:updatedCustomer.verified,signature:signature,email:updatedCustomer.email})
             return;
 
         }
     }
-    res.status(400).json({message:"Otp validation failed"})
+    res.status(404).json({message:"Login error"})
     
     return; 
 
@@ -101,6 +136,22 @@ export const CustomerVerify=async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 export const RequestOTP=async(req:Request,res:Response,next:NextFunction)=>{
+    const customer=req.user
+
+    if(customer){
+        const profile=await Customer.findById(customer._id)
+        if(profile){
+            const {otp,expiry}=GenerateOTP()
+            profile.otp=otp
+            profile.otp_expiry=expiry
+         await profile.save()
+         OnRequestOTP(profile.otp,profile.phone)
+         res.status(201).json({message:"the otp is sent to your registered number"})
+         return
+        }
+    }
+    res.status(400).json({message:"Error in sending otp"})
+    
 
 
 }

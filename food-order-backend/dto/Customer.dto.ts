@@ -19,3 +19,10 @@ export interface CustomerPayload{
     verified:boolean;
 
 }
+
+export class UserLoginInputs{
+    @IsEmail()
+    email:string
+    @Length (6,12)
+    password:string
+}

@@ -4,6 +4,7 @@ export interface CustomerDoc extends Document{
 
     email:string
     password:string
+    salt:string
     firstName:string
     lastName:string
     adress:string
@@ -24,6 +25,7 @@ const CustomerSchema=new Schema({
     phone:{type:String,required:true},
     verified:{type:Boolean,required:true},
     otp:{type:Number,required:true},
+    salt:{type:String,required:true},
     otp_expiry:{type:Date,required:true},
     lat:{type:Number},
     lng:{type:Number},

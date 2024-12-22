@@ -11,7 +11,7 @@ export const GenerateOTP=()=>{
 
 }
 
-export const OnRequestOTP=async(otp:number,toPhoneNumber:string)=>{
+export const OnRequestOTP=(otp:number,toPhoneNumber:string)=>{
      const  authToken=process.env.AUTH_TOKEN
      const accountSid=process.env.ACCOUNT_SID   
 
@@ -28,4 +28,5 @@ export const OnRequestOTP=async(otp:number,toPhoneNumber:string)=>{
 
 
 }
+
 //payment notification and emails

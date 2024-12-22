@@ -9,10 +9,13 @@ const router=express.Router()
 router.post('/signup',CustomerSignUp);
 /**Login **/
 router.post('/login',CustomerLogin)
+
+//need to get Authenticated
+router.use (Authenticate)
 /** Verify customer Account**/
-router.patch('/verify',Authenticate,CustomerVerify)
+router.patch('/verify',CustomerVerify)
 /** OTP/Requesting OTP**/
-router.get('/otp',Authenticate,RequestOTP)
+router.get('/otp',RequestOTP)
 
 /** Profile **/
 router.get('/profile',GetCustomerProfile)

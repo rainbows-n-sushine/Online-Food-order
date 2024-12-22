@@ -30,11 +30,11 @@ export class UserLoginInputs{
 }
 
 export class EditCustomerProfileInputs{
-    @Length(3,12)
+    @Length(3,16)
     firstName:string
-    @Length(3,12)
+    @Length(3,16)
     lastName:string
-    @Length(3,20)
+    @Length(6,16)
     address:string
 
 }

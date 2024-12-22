@@ -167,7 +167,7 @@ export const GetCustomerProfile=async(req:Request,res:Response,next:NextFunction
             }
 
         }
-        res.status(400).send("Error fetching user data")
+        res.status(400).send("Error fetching profile") 
         return;
 
 
@@ -195,6 +195,7 @@ export const EditCustomerProfile=async(req:Request,res:Response,next:NextFunctio
   }
 
   }
+  res.status(400).json({message:"Error in editing teh profile"})
   
 
 

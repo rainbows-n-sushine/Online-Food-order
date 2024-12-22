@@ -1,6 +1,6 @@
 import {Request,Response, NextFunction} from "express";
 import {VendorLoginInputs,EditVendorInputs} from "../dto";
-import {findVendor} from "./"
+import {findVendor} from "."
 import {ValidatePassword,GenerateSignature} from "../utility"
 import { Vendor,Food } from "../models";
 import { CreateFoodInputs } from "../dto/Food.dto";

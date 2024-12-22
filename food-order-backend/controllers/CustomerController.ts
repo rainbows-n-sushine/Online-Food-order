@@ -1,7 +1,7 @@
 import {Response ,Request,NextFunction} from "express";
-import {CreateCustomerInputs,UserLoginInputs} from "../dto"
+import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs} from "../dto"
 import {plainToClass} from "class-transformer"
-import { validate, ValidationError } from "class-validator";
+import { validate } from "class-validator";
 import { GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, OnRequestOTP, ValidateSignature,ValidatePassword } from "../utility";
 import {Customer} from "../models"
 
@@ -156,10 +156,47 @@ export const RequestOTP=async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 export const GetCustomerProfile=async(req:Request,res:Response,next:NextFunction)=>{
+    const user=req.user
+ 
+
+        if (user){
+            const customer=await Customer.findById(user._id)
+            if(customer){
+                res.status(200).send(customer)
+                return
+            }
+
+        }
+        res.status(400).send("Error fetching user data")
+        return;
+
 
 
 }
 export const EditCustomerProfile=async(req:Request,res:Response,next:NextFunction)=>{
+  const customer=req.user
+  const profileInputs=plainToClass(EditCustomerProfileInputs,req.body)
+  const profileErrors=await validate(profileInputs,{validationError:{target:false}})
+  if(profileErrors.length>0){
+    res.status(400).send(profileErrors)
+    return;
+
+  }
+  if(customer){
+    const profile= await Customer.findById(customer._id)
+  if(profile){
+    const {firstName,lastName,address}=profileInputs
+    profile.firstName=firstName
+    profile.lastName=lastName
+    profile.address=address
+    const updatedProfile=await profile.save()
+    res.status(200).send( updatedProfile )
+
+  }
+
+  }
+  
+
 
 
 }

@@ -1,0 +1,14 @@
+{
+  "services": [
+    {
+      "name": "food-order-backend",
+      "type": "web",
+      "env": "node",
+      "plan": "free",
+      "buildCommand": "npm install && npm run build",
+      "startCommand": "npm start",
+      "repo": "https://github.com/rainbows-n-sushine/Online-Food-order.git",
+      "autoDeploy": true
+    }
+  ]
+}

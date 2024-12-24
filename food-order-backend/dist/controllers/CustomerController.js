@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const dto_1 = require("../dto");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -69,6 +69,7 @@ const CustomerLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(400).send(loginErrors);
         return;
     }
+    console.log('We are in here');
     const { password, email } = loginInputs;
     const customer = yield models_1.Customer.findOne({ email: email });
     if (customer) {
@@ -91,6 +92,7 @@ const CustomerLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             return;
         }
         res.status(400).json({ message: "Login validation failed" });
+        return;
     }
 });
 exports.CustomerLogin = CustomerLogin;
@@ -169,4 +171,50 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     res.status(400).json({ message: "Error in editing teh profile" });
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //Grab current login customer
+    const customer = req.user;
+    if (customer) {
+        const orderId = `${Math.floor(Math.random() * 8999) + 1000}`;
+        const cart = req.body;
+        const profile = yield models_1.Customer.findById(customer._id);
+        const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
+        let cartItems = Array();
+        let netAmount = 0.0;
+        foods.map(food => {
+            cart.map(({ _id, unit }) => {
+                if (food._id == _id)
+                    netAmount += (food.price * unit);
+                cartItems.push({ food, unit });
+            });
+        });
+        if (cartItems) {
+            const currentOrder = yield models_1.Order.create({
+                orderId: orderId,
+                items: cartItems,
+                totalAmount: netAmount,
+                orderDate: new Date(),
+                paidThrough: "COD",
+                paymentResponse: "",
+                orderStatus: "waiting"
+            });
+            if (currentOrder) {
+                profile.orders.push(currentOrder);
+                yield profile.save();
+                res.status(200).send(cartItems);
+                return;
+            }
+        }
+    }
+    res.status(400).json({
+        message: "Error creating an order"
+    });
+});
+exports.CreateOrders = CreateOrders;
+const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.GetOrders = GetOrders;
+const GetOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.GetOrder = GetOrder;
 //# sourceMappingURL=CustomerController.js.map

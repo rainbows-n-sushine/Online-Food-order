@@ -33,37 +33,26 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Customer = void 0;
+exports.Order = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const CustomerSchema = new mongoose_1.Schema({
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    firstName: { type: String },
-    lastName: { type: String },
-    address: { type: String },
-    phone: { type: String, required: true },
-    verified: { type: Boolean, required: true },
-    otp: { type: Number, required: true },
-    salt: { type: String, required: true },
-    otp_expiry: { type: Date, required: true },
-    lat: { type: Number },
-    lng: { type: Number },
-    orders: [{
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: "order"
-        }]
-}, {
-    toJSON: {
+const OrderSchema = new mongoose_1.Schema({
+    orderId: { type: String, required: true },
+    items: [{
+            food: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: "food" },
+            unit: { type: Number, required: true }
+        }],
+    totalAmount: { type: Number },
+    orderDate: { type: Date, required: true },
+    paidThrough: { type: String, required: true },
+    paymentResponse: { type: String },
+    orderStatus: { type: String }
+}, { toJSON: {
         transform(doc, ret) {
             delete ret.updatedAt;
-            delete ret.createdAt;
-            delete ret.password;
-            delete ret.salt;
-            delete ret.__v;
+            delete ret.createdAt,
+                delete ret.__v;
         }
-    },
-    timestamps: true
-});
-const Customer = mongoose_1.default.model("customer", CustomerSchema);
-exports.Customer = Customer;
-//# sourceMappingURL=Customer.js.map
+    }, timestamps: true });
+const Order = mongoose_1.default.model("order", OrderSchema);
+exports.Order = Order;
+//# sourceMappingURL=Order.js.map

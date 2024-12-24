@@ -1,9 +1,9 @@
 import {Response ,Request,NextFunction} from "express";
-import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs} from "../dto"
+import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs,OrderInputs} from "../dto"
 import {plainToClass} from "class-transformer"
-import { validate } from "class-validator";
+import { isNotEmpty, validate } from "class-validator";
 import { GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, OnRequestOTP, ValidateSignature,ValidatePassword } from "../utility";
-import {Customer} from "../models"
+import {Customer,Order,Food} from "../models"
 
 export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -65,6 +65,7 @@ export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 export const CustomerLogin=async(req:Request,res:Response,next:NextFunction)=>{
+ 
 
     const loginInputs=plainToClass(UserLoginInputs,req.body)
     const loginErrors=await validate(loginInputs,{validationError:{target:false}})
@@ -72,6 +73,7 @@ export const CustomerLogin=async(req:Request,res:Response,next:NextFunction)=>{
         res.status(400).send(loginErrors)
         return;
     }
+    console.log('We are in here')
     const{password,email}=loginInputs
   const customer=await Customer.findOne({email:email})
   if(customer){
@@ -97,6 +99,7 @@ export const CustomerLogin=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     res.status(400).json({message:"Login validation failed"})
+    return;
 
   }
 
@@ -197,7 +200,60 @@ export const EditCustomerProfile=async(req:Request,res:Response,next:NextFunctio
   }
   res.status(400).json({message:"Error in editing teh profile"})
   
+}
 
+export const CreateOrders=async(req:Request,res:Response,next:NextFunction)=>{
+//Grab current login customer
+const customer=req.user
+if (customer){
+  const orderId=`${Math.floor(Math.random()*89999+1000)}`
+  const cart=<[OrderInputs]>req.body
+  console.log('this is above the customers id')
+  const profile=await Customer.findById(customer._id)
+  console.log('this is below the customers id')
+  const foods=await Food.find().where('_id').in(cart.map(item=>item._id)).exec()
+  let cartItems=Array()
+  let netAmount=0.0;
 
+    foods.map(food=>{
+    cart.map(({_id, unit})=>{
+      if(food._id==_id)
+      netAmount+=(food.price*unit)
+      cartItems.push({food,unit})
+    })
+  })
+  if(cartItems){
+  const currentOrder= await Order.create({
+    orderId:orderId,
+    items:cartItems,
+    totalAmount:netAmount,
+    orderDate:new Date(),
+    paidThrough:"COD",
+    paymentResponse:"",
+    orderStatus:"waiting"
+
+  })
+  if(currentOrder){
+    profile.orders.push(currentOrder)
+    await profile.save()
+    res.status(200).send(currentOrder)
+    return;
+  } 
+  }   
+}
+res.status(400).json({
+  message:"Error creating an order"
+})
+}
+
+export const GetOrders=async(req:Request,res:Response,next:NextFunction)=>{
+
+  
+
+}
+
+export const GetOrder=async(req:Request,res:Response,next:NextFunction)=>{
+
+  
 
 }

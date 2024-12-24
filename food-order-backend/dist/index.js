@@ -22,7 +22,7 @@ const StartServer = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, ExpressApp_1.default)(app);
     app.listen(config_1.PORT, () => {
         console.clear();
-        console.log(`Server is running on port ${config_1.PORT}`);
+        console.log(`Server is running on Render Server port ${config_1.PORT}`);
     });
 });
 StartServer();

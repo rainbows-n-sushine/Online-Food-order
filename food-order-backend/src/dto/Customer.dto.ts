@@ -38,3 +38,8 @@ export class EditCustomerProfileInputs{
     address:string
 
 }
+
+export class OrderInputs{
+    _id:string //8625763
+    unit:number 
+}

@@ -14,9 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const routes_1 = require("../routes");
-const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
-dotenv_1.default.config();
 exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
@@ -24,7 +22,7 @@ exports.default = (app) => __awaiter(void 0, void 0, void 0, function* () {
     app.use("/admin", routes_1.AdminRoute);
     app.use('/vendor', routes_1.VendorRoute);
     app.use('/customer', routes_1.CustomerRoute);
-    app.use(routes_1.ShoppingRoute);
+    app.use('/shopping', routes_1.ShoppingRoute);
     return app;
 });
 //# sourceMappingURL=ExpressApp.js.map

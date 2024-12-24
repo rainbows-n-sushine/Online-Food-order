@@ -2,17 +2,19 @@ import express,{Request, Response, NextFunction} from 'express';
 import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService ,AddFood,VendorLogin,GetFoods,UpdateVendorCoverImage} from '../controllers';
 import { Authenticate } from '../middlewares';
 import multer from "multer";
+import path from 'path';
 
 const router= express.Router();
 
 const imageStorage=multer.diskStorage({
     destination:(req,file,cb)=>{
-        cb(null,"images")
+        cb(null,path.join(__dirname, '../images'))
     },
     filename:(req,file,cb)=>{
         const timestamp = new Date().toISOString().replace(/:/g, '-');
         const newFilename = `${timestamp}_${file.originalname}`;
         cb(null, newFilename);
+        // cb(null,new Date().toISOString()+"_"+ file.originalname)
     }
 })
 const images=multer({storage:imageStorage}).array("images",10)

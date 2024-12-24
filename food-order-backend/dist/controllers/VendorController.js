@@ -119,7 +119,7 @@ const UpdateVendorCoverImage = (req, res, next) => __awaiter(void 0, void 0, voi
     const user = req.user;
     console.log('this is the user', user);
     if (user) {
-        const existingVendor = yield (0, _1.findVendor)(user._id);
+        const existingVendor = yield (0, _1.findVendor)('', user._id);
         if (existingVendor !== null) {
             const files = req.files;
             const images = files.map(file => {
@@ -141,12 +141,13 @@ const UpdateVendorCoverImage = (req, res, next) => __awaiter(void 0, void 0, voi
 exports.UpdateVendorCoverImage = UpdateVendorCoverImage;
 const AddFood = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
+    console.log('im ina dd food');
     if (user) {
         const files = req.files;
         console.log("this is files", files);
         const images = files.map((file) => {
+            files.forEach(file => console.log('Uploaded file path:', file.path));
             return file.filename;
-            console.log("this is th efile: ", file);
         });
         console.log("this is images", images);
         const { name, description, category, foodType, readyTime, price } = req.body;

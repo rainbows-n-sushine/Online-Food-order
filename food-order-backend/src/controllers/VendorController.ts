@@ -123,7 +123,7 @@ export const UpdateVendorCoverImage=async(req:Request,res:Response,next:NextFunc
     const user=req.user
     console.log('this is the user',user)
     if(user){
-        const existingVendor=await findVendor(user._id)
+        const existingVendor=await findVendor('',user._id)
         if (existingVendor!==null){
             const files=req.files as [Express.Multer.File]
             const images=files.map(file=>{
@@ -147,6 +147,7 @@ export const UpdateVendorCoverImage=async(req:Request,res:Response,next:NextFunc
 export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
 
     const user=req.user
+    console.log('im ina dd food')
 
     
     if(user){       
@@ -156,9 +157,12 @@ export const AddFood=async(req:Request,res:Response,next:NextFunction)=>{
        
          
          const images=files.map((file:Express.Multer.File)=>{
-           return file.filename
-            console.log("this is th efile: ",file)
+          
+            files.forEach(file => console.log('Uploaded file path:', file.path));
+
+            return file.filename
             
+
 
          })
 

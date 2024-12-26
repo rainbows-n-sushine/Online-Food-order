@@ -247,13 +247,28 @@ res.status(400).json({
 }
 
 export const GetOrders=async(req:Request,res:Response,next:NextFunction)=>{
-
+  const customer=req.user
+  if(customer){
+    const profile=await Customer.findById(customer._id).populate('orders')
+    if(profile){
+      res.status(200).send(profile.orders)
+      return;
+    }
+  }
+res.status(400).json({message:"Error fetching orders"})
+return;
   
 
 }
 
 export const GetOrder=async(req:Request,res:Response,next:NextFunction)=>{
-
+const orderId=req.params.id
+if(orderId){
+  const order=await Order.findById(orderId).populate('items.food')
+  if(Order){
+    res.status(200).send(order)
+    return
+   }
   
-
+}
 }

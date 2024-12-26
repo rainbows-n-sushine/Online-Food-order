@@ -32,7 +32,6 @@ export const ValidateSignature=async(req:Request)=>{
         const token= signature.split(" ")[1]
         const payload= await jwt.verify(token,APP_SECRET) as AuthPayload
         req.user=payload; 
-              
         return true;
 
     }

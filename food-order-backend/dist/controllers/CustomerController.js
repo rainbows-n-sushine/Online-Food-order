@@ -175,9 +175,11 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     //Grab current login customer
     const customer = req.user;
     if (customer) {
-        const orderId = `${Math.floor(Math.random() * 8999) + 1000}`;
+        const orderId = `${Math.floor(Math.random() * 89999 + 1000)}`;
         const cart = req.body;
+        console.log('this is above the customers id');
         const profile = yield models_1.Customer.findById(customer._id);
+        console.log('this is below the customers id');
         const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
         let cartItems = Array();
         let netAmount = 0.0;
@@ -201,7 +203,7 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             if (currentOrder) {
                 profile.orders.push(currentOrder);
                 yield profile.save();
-                res.status(200).send(cartItems);
+                res.status(200).send(currentOrder);
                 return;
             }
         }
@@ -212,9 +214,28 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.CreateOrders = CreateOrders;
 const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    console.log('this is user: ', req.user, "we are in get orders");
+    if (customer) {
+        const profile = yield models_1.Customer.findById(customer._id).populate('orders');
+        if (profile) {
+            res.status(200).send(profile.orders);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Error fetching orders" });
+    return;
 });
 exports.GetOrders = GetOrders;
 const GetOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield models_1.Order.findById(orderId).populate('items.food');
+        if (models_1.Order) {
+            res.status(200).send(order);
+            return;
+        }
+    }
 });
 exports.GetOrder = GetOrder;
 //# sourceMappingURL=CustomerController.js.map

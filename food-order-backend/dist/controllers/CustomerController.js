@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const dto_1 = require("../dto");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -171,6 +171,7 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     res.status(400).json({ message: "Error in editing teh profile" });
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+//*****************Order section *******************/
 const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //Grab current login customer
     const customer = req.user;
@@ -215,7 +216,6 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 exports.CreateOrders = CreateOrders;
 const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customer = req.user;
-    console.log('this is user: ', req.user, "we are in get orders");
     if (customer) {
         const profile = yield models_1.Customer.findById(customer._id).populate('orders');
         if (profile) {
@@ -231,11 +231,84 @@ const GetOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     const orderId = req.params.id;
     if (orderId) {
         const order = yield models_1.Order.findById(orderId).populate('items.food');
+        console.log("this is order: ", order);
         if (models_1.Order) {
             res.status(200).send(order);
             return;
         }
+        res.status(400).json({ message: "Error in fetching the order" });
+        return;
     }
 });
 exports.GetOrder = GetOrder;
+//*****************************   Cart section   *****************************/
+const AddToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const { _id, unit } = req.body;
+        const food = yield models_1.Food.findById(_id);
+        let cartItems = Array();
+        if (food) {
+            const profile = yield models_1.Customer.findById(customer._id).populate('cart.food');
+            if (profile != null) {
+                cartItems = profile.cart;
+                if (cartItems.length > 0) {
+                    const existingFood = cartItems.filter(item => item.food._id.toString() === _id);
+                    if (existingFood.length > 0) {
+                        const index = cartItems.indexOf(existingFood[0]);
+                        if (unit > 0) {
+                            cartItems[index] = { food, unit };
+                        }
+                        else {
+                            cartItems.splice(index, 1);
+                        }
+                    }
+                    else {
+                        cartItems.push({ food, unit });
+                    }
+                }
+                else {
+                    cartItems.push({ food, unit });
+                }
+                if (cartItems) {
+                    profile.cart = cartItems;
+                    const cartResult = yield profile.save();
+                    res.status(200).send(cartResult.cart);
+                    return;
+                }
+            }
+        }
+    }
+    res.status(400).send({ message: 'error adding to cart' });
+});
+exports.AddToCart = AddToCart;
+const GetCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield models_1.Customer.findById(customer._id).populate('cart.food');
+        if (profile !== null) {
+            const cartResult = profile.cart;
+            res.status(200).send(cartResult);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Cart is empty" });
+    return;
+});
+exports.GetCart = GetCart;
+const DeleteCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = req.user;
+    if (customer) {
+        const profile = yield models_1.Customer.findById(customer._id).populate('cart.food');
+        if (profile !== null) {
+            profile.cart = [];
+            const cartResult = yield profile.save();
+            res.status(200).send(cartResult);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Cart is already empty" });
+    return;
+});
+exports.DeleteCart = DeleteCart;
 //# sourceMappingURL=CustomerController.js.map

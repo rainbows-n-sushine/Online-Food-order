@@ -1,5 +1,8 @@
 import express,{Request, Response, NextFunction} from 'express';
-import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService ,AddFood,VendorLogin,GetFoods,UpdateVendorCoverImage} from '../controllers';
+import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService ,AddFood,
+    VendorLogin,GetFoods,UpdateVendorCoverImage, GetCurrentOrders, ProcessOrder,
+    GetOrderDetails
+} from '../controllers';
 import { Authenticate } from '../middlewares';
 import multer from "multer";
 import path from 'path';
@@ -28,6 +31,10 @@ router.patch('/service', UpdateVendorService)
 router.patch('/coverimage',images,UpdateVendorCoverImage)
 router.post('/food',images,AddFood)
 router.get("/foods",GetFoods)
+//Orders
+router.get('/orders',GetCurrentOrders)
+router.put('/order/:id/process',ProcessOrder)
+router.get('/order/:id',GetOrderDetails)
 
 router.get('/',(req:Request,res:Response,next:NextFunction)=>{
     res.json('Welcome to the vendor route')

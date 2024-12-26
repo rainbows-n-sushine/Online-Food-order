@@ -37,6 +37,7 @@ exports.Order = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const OrderSchema = new mongoose_1.Schema({
     orderId: { type: String, required: true },
+    vendorId: { type: String, required: true },
     items: [{
             food: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: "food" },
             unit: { type: Number, required: true }

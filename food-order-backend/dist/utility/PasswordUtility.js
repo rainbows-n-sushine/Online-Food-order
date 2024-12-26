@@ -43,7 +43,6 @@ const ValidateSignature = (req) => __awaiter(void 0, void 0, void 0, function* (
         const token = signature.split(" ")[1];
         const payload = yield jsonwebtoken_1.default.verify(token, config_1.APP_SECRET);
         req.user = payload;
-        console.log(req.user);
         return true;
     }
     return false;

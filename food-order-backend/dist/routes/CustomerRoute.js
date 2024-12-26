@@ -24,6 +24,9 @@ router.get('/otp', controllers_1.RequestOTP);
 router.get('/profile', controllers_1.GetCustomerProfile);
 router.patch('/profile', controllers_1.EditCustomerProfile);
 //Cart
+router.post('/cart', controllers_1.AddToCart);
+router.get('/cart', controllers_1.GetCart);
+router.delete('/delete', controllers_1.DeleteCart);
 //Payment
 //Order
 router.post('/create-order', controllers_1.CreateOrders);

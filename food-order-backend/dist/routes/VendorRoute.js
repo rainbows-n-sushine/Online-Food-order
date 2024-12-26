@@ -31,6 +31,10 @@ router.patch('/service', controllers_1.UpdateVendorService);
 router.patch('/coverimage', images, controllers_1.UpdateVendorCoverImage);
 router.post('/food', images, controllers_1.AddFood);
 router.get("/foods", controllers_1.GetFoods);
+//Orders
+router.get('/orders', controllers_1.GetCurrentOrders);
+router.put('/order/:id/process', controllers_1.ProcessOrder);
+router.get('/order/:id', controllers_1.GetOrderDetails);
 router.get('/', (req, res, next) => {
     res.json('Welcome to the vendor route');
 });

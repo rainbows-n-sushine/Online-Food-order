@@ -51,6 +51,10 @@ const CustomerSchema = new mongoose_1.Schema({
     orders: [{
             type: mongoose_1.Schema.Types.ObjectId,
             ref: "order"
+        }],
+    cart: [{
+            food: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: "food" },
+            unit: { type: Number, required: true }
         }]
 }, {
     toJSON: {

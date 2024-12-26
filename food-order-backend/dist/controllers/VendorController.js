@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetFoods = exports.AddFood = exports.UpdateVendorCoverImage = exports.UpdateVendorService = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
+exports.ProcessOrder = exports.GetOrderDetails = exports.GetCurrentOrders = exports.GetFoods = exports.AddFood = exports.UpdateVendorCoverImage = exports.UpdateVendorService = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
 const _1 = require(".");
 const utility_1 = require("../utility");
 const models_1 = require("../models");
@@ -188,4 +188,23 @@ const GetFoods = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.GetFoods = GetFoods;
+const GetCurrentOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    if (user) {
+        const orders = yield models_1.Order.find({ vandorId: user._id }).populate('items.food');
+        if (orders !== null) {
+            res.status(200).send(orders);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Orders can not be found" });
+    return;
+});
+exports.GetCurrentOrders = GetCurrentOrders;
+const GetOrderDetails = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.GetOrderDetails = GetOrderDetails;
+const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.ProcessOrder = ProcessOrder;
 //# sourceMappingURL=VendorController.js.map

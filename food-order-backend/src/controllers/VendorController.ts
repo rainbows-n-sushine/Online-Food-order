@@ -230,6 +230,18 @@ export const GetCurrentOrders=async(req:Request,res:Response,next:NextFunction)=
 }
 
 export const GetOrderDetails=async(req:Request,res:Response,next:NextFunction)=>{
+    const orderId=req.params.id
+
+    if(orderId){
+        const order=await Order.find(orderId).populate('items.food')
+        if(order!==null){
+            res.status(200).send(order);
+            return;
+        }
+        
+    }
+    res.status(400).json({message:"Order can not be found"})
+    return;
 
     
 }

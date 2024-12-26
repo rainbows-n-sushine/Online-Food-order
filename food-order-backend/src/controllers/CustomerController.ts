@@ -324,7 +324,15 @@ export const AddToCart=async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 export const GetCart=async(req:Request,res:Response,next:NextFunction)=>{
-
+  const customer=req.user
+  if(customer){
+    const profile=await Customer.findById(customer._id).populate('cart.food')
+    if(profile!==null){
+      const cartResult=profile.cart
+      res.status(200).send(cartResult)
+    }
+  }
+res.status(400).json({message:"Cart is empty"})
 
 }
 

@@ -191,7 +191,7 @@ exports.GetFoods = GetFoods;
 const GetCurrentOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     if (user) {
-        const orders = yield models_1.Order.find({ vandorId: user._id }).populate('items.food');
+        const orders = yield models_1.Order.find({ vendorId: user._id }).populate('items.food');
         if (orders !== null) {
             res.status(200).send(orders);
             return;
@@ -202,9 +202,38 @@ const GetCurrentOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.GetCurrentOrders = GetCurrentOrders;
 const GetOrderDetails = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield models_1.Order.findOne({ orderId }).populate('items.food');
+        if (order !== null) {
+            res.status(200).send(order);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Order can not be found" });
+    return;
 });
 exports.GetOrderDetails = GetOrderDetails;
 const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const orderId = req.params.id;
+    if (orderId) {
+        const order = yield models_1.Order.findOne({ orderId }).populate('items.food');
+        const { status, time, remarks } = req.body;
+        if (order) {
+            order.orderStatus = status;
+            order.remarks = remarks;
+            if (time) {
+                order.readyTime = time;
+            }
+            const orderResult = yield order.save();
+            if (orderResult) {
+                res.status(200).send(orderResult);
+                return;
+            }
+        }
+    }
+    res.status(400).json({ message: "Unable to process order" });
+    return;
 });
 exports.ProcessOrder = ProcessOrder;
 //# sourceMappingURL=VendorController.js.map

@@ -46,7 +46,12 @@ const OrderSchema = new mongoose_1.Schema({
     orderDate: { type: Date, required: true },
     paidThrough: { type: String, required: true },
     paymentResponse: { type: String },
-    orderStatus: { type: String }
+    orderStatus: { type: String },
+    remarks: { type: String },
+    deliveryId: { type: String },
+    appliedOffers: { type: Boolean },
+    offerId: { type: String },
+    readyTime: { type: Number },
 }, { toJSON: {
         transform(doc, ret) {
             delete ret.updatedAt;

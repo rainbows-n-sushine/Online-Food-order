@@ -184,11 +184,14 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
         let cartItems = Array();
         let netAmount = 0.0;
+        let vendorId;
         foods.map(food => {
             cart.map(({ _id, unit }) => {
-                if (food._id == _id)
+                if (food._id == _id) {
+                    vendorId = food.vendorId;
                     netAmount += (food.price * unit);
-                cartItems.push({ food, unit });
+                    cartItems.push({ food, unit });
+                }
             });
         });
         if (cartItems) {
@@ -199,9 +202,15 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 orderDate: new Date(),
                 paidThrough: "COD",
                 paymentResponse: "",
-                orderStatus: "waiting"
+                orderStatus: "waiting",
+                deliveryId: "",
+                appliedOffers: false,
+                offerId: null,
+                readyTime: 45,
+                vendorId: vendorId
             });
             if (currentOrder) {
+                profile.cart = [];
                 profile.orders.push(currentOrder);
                 yield profile.save();
                 res.status(200).send(currentOrder);
@@ -229,9 +238,9 @@ const GetOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 exports.GetOrders = GetOrders;
 const GetOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const orderId = req.params.id;
+    console.log('this is orderId', orderId);
     if (orderId) {
-        const order = yield models_1.Order.findById(orderId).populate('items.food');
-        console.log("this is order: ", order);
+        const order = yield models_1.Order.find({ orderId }).populate('items.food');
         if (models_1.Order) {
             res.status(200).send(order);
             return;

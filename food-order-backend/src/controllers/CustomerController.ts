@@ -269,6 +269,8 @@ if(orderId){
     res.status(200).send(order)
     return
    }
+   res.status(400).json({message:"Error in fetching the order"})
+   return;
   
 }
 }

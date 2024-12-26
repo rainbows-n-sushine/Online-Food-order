@@ -1,5 +1,5 @@
 import {Request,Response, NextFunction} from "express";
-import {VendorLoginInputs,EditVendorInputs} from "../dto";
+import {VendorLoginInputs,EditVendorInputs, ProcessOrderInputs} from "../dto";
 import {findVendor} from "."
 import {ValidatePassword,GenerateSignature} from "../utility"
 import { Vendor,Food, Order } from "../models";
@@ -218,7 +218,7 @@ export const GetCurrentOrders=async(req:Request,res:Response,next:NextFunction)=
     const user=req.user
 
     if(user){
-        const orders=await Order.find({vandorId:user._id}).populate('items.food')
+        const orders=await Order.find({vendorId:user._id}).populate('items.food')
         if(orders!==null){
             res.status(200).send(orders);
             return;
@@ -233,7 +233,7 @@ export const GetOrderDetails=async(req:Request,res:Response,next:NextFunction)=>
     const orderId=req.params.id
 
     if(orderId){
-        const order=await Order.find(orderId).populate('items.food')
+        const order=await Order.findOne({orderId}).populate('items.food')
         if(order!==null){
             res.status(200).send(order);
             return;
@@ -247,6 +247,24 @@ export const GetOrderDetails=async(req:Request,res:Response,next:NextFunction)=>
 }
 
 export const ProcessOrder=async(req:Request,res:Response,next:NextFunction)=>{
-
-    
+    const orderId=req.params.id
+    if(orderId){
+        const order=await Order.findOne({orderId}).populate('items.food')
+        const {status,time,remarks}=<ProcessOrderInputs>req.body
+        if(order){
+            order.orderStatus=status
+            order.remarks=remarks
+            if(time){
+                order.readyTime=time
+            }
+            const orderResult=await order.save()
+            if(orderResult){
+              res.status(200).send(orderResult)
+            return;  
+            }
+            
+        }
+    }
+res.status(400).json({message:"Unable to process order"})
+return;   
 }

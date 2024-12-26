@@ -29,3 +29,9 @@ export interface EditVendorInputs{
     address:string,
     phone:string
 }
+export interface ProcessOrderInputs{
+
+    status:string
+    remarks:string
+    time:number
+}

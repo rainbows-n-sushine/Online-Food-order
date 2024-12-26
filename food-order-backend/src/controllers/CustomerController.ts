@@ -217,14 +217,18 @@ if (customer){
   const foods=await Food.find().where('_id').in(cart.map(item=>item._id)).exec()
   let cartItems=Array()
   let netAmount=0.0;
+  let vendorId;
 
     foods.map(food=>{
     cart.map(({_id, unit})=>{
-      if(food._id==_id)
+      if(food._id==_id){
+        vendorId=food.vendorId
       netAmount+=(food.price*unit)
       cartItems.push({food,unit})
+      }
     })
   })
+  
   if(cartItems){
   const currentOrder= await Order.create({
     orderId:orderId,
@@ -233,10 +237,16 @@ if (customer){
     orderDate:new Date(),
     paidThrough:"COD",
     paymentResponse:"",
-    orderStatus:"waiting"
+    orderStatus:"waiting",
+    deliveryId:"",
+    appliedOffers:false,
+    offerId:null,
+    readyTime:45,
+    vendorId:vendorId
 
   })
   if(currentOrder){
+    profile.cart=[] as any;
     profile.orders.push(currentOrder)
     await profile.save()
     res.status(200).send(currentOrder)
@@ -266,9 +276,9 @@ return;
 
 export const GetOrder=async(req:Request,res:Response,next:NextFunction)=>{
 const orderId=req.params.id
+console.log('this is orderId',orderId)
 if(orderId){
-  const order=await Order.findById(orderId).populate('items.food')
-  console.log("this is order: ", order)
+  const order=await Order.find({orderId}).populate('items.food')
   if(Order){
     res.status(200).send(order)
     return

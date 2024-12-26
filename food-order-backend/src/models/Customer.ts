@@ -15,7 +15,8 @@ export interface CustomerDoc extends Document{
     otp_expiry:Date
     lat:number
     lng:number
-    orders:[OrderDoc]
+    orders:[OrderDoc],
+    cart:[any]
 
 }
 
@@ -35,6 +36,10 @@ const CustomerSchema=new Schema({
     orders:[{
         type:Schema.Types.ObjectId,
         ref:"order"
+    }],
+    cart:[{
+        food:{type:Schema.Types.ObjectId, required:true, ref:"food"},
+        unit:{type:Number, required:true}
     }]
 
 },{
@@ -45,8 +50,6 @@ const CustomerSchema=new Schema({
             delete ret.password
             delete ret.salt
             delete ret.__v 
-         
-
         }
         
     },

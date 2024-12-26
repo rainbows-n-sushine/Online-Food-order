@@ -2,7 +2,10 @@ import {Response ,Request,NextFunction} from "express";
 import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs,OrderInputs} from "../dto"
 import {plainToClass} from "class-transformer"
 import { isNotEmpty, validate } from "class-validator";
-import { GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, OnRequestOTP, ValidateSignature,ValidatePassword } from "../utility";
+import { 
+  GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, 
+  OnRequestOTP, ValidateSignature,ValidatePassword 
+} from "../utility";
 import {Customer,Order,Food} from "../models"
 
 export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
@@ -201,7 +204,7 @@ export const EditCustomerProfile=async(req:Request,res:Response,next:NextFunctio
   res.status(400).json({message:"Error in editing teh profile"})
   
 }
-
+//*****************Order section *******************/
 export const CreateOrders=async(req:Request,res:Response,next:NextFunction)=>{
 //Grab current login customer
 const customer=req.user
@@ -265,6 +268,7 @@ export const GetOrder=async(req:Request,res:Response,next:NextFunction)=>{
 const orderId=req.params.id
 if(orderId){
   const order=await Order.findById(orderId).populate('items.food')
+  console.log("this is order: ", order)
   if(Order){
     res.status(200).send(order)
     return
@@ -273,4 +277,58 @@ if(orderId){
    return;
   
 }
+}
+//*****************************   Cart section   *****************************/
+
+export const AddToCart=async(req:Request,res:Response,next:NextFunction)=>{
+  const customer=req.user
+  if(customer){
+    const {_id, unit}=<OrderInputs>req.body
+    const food= await Food.findById(_id)
+    let cartItems=Array()
+    
+    if(food){
+      const profile=await Customer.findById(customer._id).populate('cart.food')
+      if(profile!=null){
+       cartItems=profile.cart
+        if(cartItems.length>0){
+          const existingFood=cartItems.filter(item=>item.food._id.toString()===_id)
+          if(existingFood.length>0){
+            const index=cartItems.indexOf(existingFood[0])
+            if(unit>0){
+              cartItems[index]={food,unit}
+            }else{
+              cartItems.splice(index,1)
+            }  
+
+          }else{
+            cartItems.push({food,unit})
+          }
+        }
+          else{
+            cartItems.push({food,unit}) 
+          }  
+          if(cartItems){
+            profile.cart=cartItems as any;
+            const cartResult=await profile.save()
+            res.status(200).send(cartResult.cart)
+            return;
+          }       
+        
+      }
+    }
+  }
+  res.status(400).send({message:'error adding to cart'})
+
+
+
+}
+export const GetCart=async(req:Request,res:Response,next:NextFunction)=>{
+
+
+}
+
+export const DeleteCart=async(req:Request,res:Response,next:NextFunction)=>{
+
+
 }

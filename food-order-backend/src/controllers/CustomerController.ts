@@ -330,10 +330,11 @@ export const GetCart=async(req:Request,res:Response,next:NextFunction)=>{
     if(profile!==null){
       const cartResult=profile.cart
       res.status(200).send(cartResult)
+      return;
     }
   }
 res.status(400).json({message:"Cart is empty"})
-
+return;
 }
 
 export const DeleteCart=async(req:Request,res:Response,next:NextFunction)=>{
@@ -345,8 +346,11 @@ export const DeleteCart=async(req:Request,res:Response,next:NextFunction)=>{
       profile.cart=[] as any;
       const cartResult=await profile.save()
       res.status(200).send(cartResult)
+      return;
+
     }
   }
 res.status(400).json({message:"Cart is already empty"})
+return;
 
 }

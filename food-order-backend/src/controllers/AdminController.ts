@@ -2,6 +2,7 @@ import {Request,Response,NextFunction} from "express";
 import {CreateVendorInput} from "../dto"
 import {Vendor} from '../models';
 import {GenerateSalt, GeneratePassword} from "../utility"
+import { Transaction } from "../models/Transaction";
 
 
 export const findVendor=async(id:string|undefined, email?:string)=>{
@@ -96,4 +97,29 @@ export const CreateVendor=async(req:Request,res:Response,next:NextFunction)=>{
                 console.log("error: ",error)
             }
         }        
+    }
+    export const GetTransactions=async(req:Request,res:Response,next:NextFunction)=>{
+            const transactions=await Transaction.find()
+            if (transactions){
+                res.status(200).send(transactions)
+                return;
+            }
+
+        
+        res.status(400).json({message:"Transactions data is not available"})
+        return;
+    }
+
+    export const GetTransaction=async(req:Request,res:Response,next:NextFunction)=>{
+        const txnId=req.params.id
+        if(txnId){
+            const transaction=await Transaction.findById(txnId)
+            if (transaction){
+                res.status(200).send(transaction)
+                return;
+            }
+
+        }
+        res.status(400).json({message:"Transaction data is not available"})
+        return;
     }

@@ -1,5 +1,5 @@
 import {Response ,Request,NextFunction} from "express";
-import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs,OrderInputs} from "../dto"
+import {CreateCustomerInputs,UserLoginInputs,EditCustomerProfileInputs,OrderInputs,CartItems} from "../dto"
 import {plainToClass} from "class-transformer"
 import { isNotEmpty, validate } from "class-validator";
 import { 
@@ -203,25 +203,84 @@ export const EditCustomerProfile=async(req:Request,res:Response,next:NextFunctio
 
   }
   res.status(400).json({message:"Error in editing teh profile"})
+
   
 }
+
+
+/*********************Create payment section*************************/
+export const CreatePayment=async(req:Request,res:Response,next:NextFunction)=>{
+  const user=req.user
+  const {amount,paymentMode,offerId }=req.body
+  let payableAmount=Number(amount)
+  const appliedOffer=await Offer.findById(offerId)
+  if(appliedOffer){
+    if(appliedOffer.isActive===true){
+      payableAmount=(payableAmount-appliedOffer.offerAmount)
+    }
+  
+  }
+  //perform payment gateway Charge API call
+
+
+  //create record on transaction 
+  const transaction=await Transaction.create({
+    customer:user._id,
+    vendorId:'',
+    orderId:"",
+    orderValue:payableAmount,
+    offerUsed:offerId||"NA",
+    status:"OPEN",//Failed//Success
+    paymentMode:paymentMode,
+    paymentResponse:"Payment is cash on delivery"
+  })
+
+
+
+  //return transaction id
+  res.status(200).send(transaction)
+  return
+
+
+}
 //*****************Order section *******************/
+
+export const validateTransaction=async(txnId:string)=>{
+   const currentTransaction=await Transaction.findById(txnId)
+   if(currentTransaction){
+    if(currentTransaction.status.toLowerCase()!=="failed"){
+      return {status:true,currentTransaction}
+      
+    }
+    return {status:false,currentTransaction}
+
+   }
+
+    
+
+}
 export const CreateOrders=async(req:Request,res:Response,next:NextFunction)=>{
 //Grab current login customer
 const customer=req.user
+const {txnId,amount,items}=<OrderInputs>req.body
+
 if (customer){
+  const {status,currentTransaction}=await validateTransaction(txnId)
+  if(!status){
+    res.status(404).json({message:"Error with create order"})
+    return;
+  }
   const orderId=`${Math.floor(Math.random()*89999+1000)}`
-  const cart=<[OrderInputs]>req.body
   console.log('this is above the customers id')
   const profile=await Customer.findById(customer._id)
   console.log('this is below the customers id')
-  const foods=await Food.find().where('_id').in(cart.map(item=>item._id)).exec()
+  const foods=await Food.find().where('_id').in(items.map(item=>item._id)).exec()
   let cartItems=Array()
   let netAmount=0.0;
   let vendorId;
 
     foods.map(food=>{
-    cart.map(({_id, unit})=>{
+    items.map(({_id, unit})=>{
       if(food._id==_id){
         vendorId=food.vendorId
       netAmount+=(food.price*unit)
@@ -235,24 +294,27 @@ if (customer){
     orderId:orderId,
     items:cartItems,
     totalAmount:netAmount,
+    paidAmount:amount,
     orderDate:new Date(),
-    paidThrough:"COD",
-    paymentResponse:"",
     orderStatus:"waiting",
     deliveryId:"",
-    appliedOffers:false,
-    offerId:null,
     readyTime:45,
     vendorId:vendorId
 
   })
-  if(currentOrder){
+
     profile.cart=[] as any;
     profile.orders.push(currentOrder)
+
+    currentTransaction.vendorId=vendorId
+    currentTransaction.orderId=orderId
+    currentTransaction.status='CONFIRMED'
+
+    await currentTransaction.save()
     await profile.save()
-    res.status(200).send(currentOrder)
+    res.status(200).send(profile)
     return;
-  } 
+  
   }   
 }
 res.status(400).json({
@@ -294,7 +356,7 @@ if(orderId){
 export const AddToCart=async(req:Request,res:Response,next:NextFunction)=>{
   const customer=req.user
   if(customer){
-    const {_id, unit}=<OrderInputs>req.body
+    const {_id, unit}=<CartItems>req.body
     const food= await Food.findById(_id)
     let cartItems=Array()
     
@@ -385,38 +447,3 @@ export const VerifyOffer=async(req:Request,res:Response,next:NextFunction)=>{
   res.status(400).json({message:"Failed fetching offer"})
    return;
 }}
-
-export const CreatePayment=async(req:Request,res:Response,next:NextFunction)=>{
-  const user=req.user
-  const {amount,paymentMode,offerId }=req.body
-  let payableAmount=Number(amount)
-  const appliedOffer=await Offer.findById(offerId)
-  if(appliedOffer){
-    if(appliedOffer.isActive===true){
-      payableAmount=(payableAmount-appliedOffer.offerAmount)
-    }
-  
-  }
-  //perform payment gateway Charge API call
-
-
-  //create record on transaction 
-  const transaction=await Transaction.create({
-    customer:user._id,
-    vendorId:'',
-    orderId:"",
-    orderValue:payableAmount,
-    offerUsed:offerId||"NA",
-    status:"OPEN",
-    paymentMode:paymentMode,
-    paymentResponse:"Payment is cash on delivery"
-  })
-
-
-
-  //return transaction id
-  res.status(200).send(transaction)
-  return
-
-
-}

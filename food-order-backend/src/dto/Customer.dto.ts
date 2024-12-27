@@ -39,7 +39,14 @@ export class EditCustomerProfileInputs{
 
 }
 
-export class OrderInputs{
+export class CartItems{
     _id:string //8625763
     unit:number 
 }
+export class OrderInputs{
+     txnId:string
+     amount:string
+     items:[CartItems]
+}
+
+

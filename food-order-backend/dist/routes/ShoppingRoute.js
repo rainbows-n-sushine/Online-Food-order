@@ -18,6 +18,8 @@ router.get('/foods-in-30-min/:pincode', controllers_1.GetFoodsIn30mins);
 router.get('/search/:pincode', controllers_1.SearchFoods);
 /**-----------------Find restaurants by ID-----------------**/
 router.get('/restaurant/:id', controllers_1.RestaurantsById);
+/**-----------------Find offers-----------------**/
+router.get('/offers/:pincode', controllers_1.GetAvailableOffers);
 router.get('/', (req, res, next) => {
     console.log('this is the shopping router');
 });

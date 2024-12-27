@@ -35,3 +35,20 @@ export interface ProcessOrderInputs{
     remarks:string
     time:number
 }
+
+export interface CreateOfferInputs{
+    offerType:string,
+    vendors:[any],
+    title:string,
+    description:string,
+    minValue:number,
+    offerAmount:number,
+    startValidity:Date,
+    endValidity:Date,
+    promocode:string,
+    promotype:string,
+    bank:[any],
+    bins:[any],
+    pincode:string,
+    isActive:boolean
+}

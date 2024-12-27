@@ -278,7 +278,7 @@ export const GetOrder=async(req:Request,res:Response,next:NextFunction)=>{
 const orderId=req.params.id
 console.log('this is orderId',orderId)
 if(orderId){
-  const order=await Order.find({orderId}).populate('items.food')
+  const order=await Order.findById(orderId).populate('items.food')
   if(Order){
     res.status(200).send(order)
     return

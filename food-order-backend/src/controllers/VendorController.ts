@@ -2,8 +2,9 @@ import {Request,Response, NextFunction} from "express";
 import {VendorLoginInputs,EditVendorInputs, ProcessOrderInputs} from "../dto";
 import {findVendor} from "."
 import {ValidatePassword,GenerateSignature} from "../utility"
-import { Vendor,Food, Order } from "../models";
-import { CreateFoodInputs } from "../dto/Food.dto";
+import { Vendor,Food, Order,Offer } from "../models";
+import { CreateFoodInputs,CreateOfferInputs } from "../dto";
+import { read } from "fs";
 
 
 export const VendorLogin=async(req:Request,res:Response,next:NextFunction)=>{
@@ -233,7 +234,7 @@ export const GetOrderDetails=async(req:Request,res:Response,next:NextFunction)=>
     const orderId=req.params.id
 
     if(orderId){
-        const order=await Order.findOne({orderId}).populate('items.food')
+        const order=await Order.findById(orderId).populate('items.food')
         if(order!==null){
             res.status(200).send(order);
             return;
@@ -249,7 +250,7 @@ export const GetOrderDetails=async(req:Request,res:Response,next:NextFunction)=>
 export const ProcessOrder=async(req:Request,res:Response,next:NextFunction)=>{
     const orderId=req.params.id
     if(orderId){
-        const order=await Order.findOne({orderId}).populate('items.food')
+        const order=await Order.findById(orderId).populate('items.food')
         const {status,time,remarks}=<ProcessOrderInputs>req.body
         if(order){
             order.orderStatus=status
@@ -267,4 +268,75 @@ export const ProcessOrder=async(req:Request,res:Response,next:NextFunction)=>{
     }
 res.status(400).json({message:"Unable to process order"})
 return;   
+}
+
+//***********************Offer section************************/
+export const AddOffer=async(req:Request,res:Response,next:NextFunction)=>{
+const user=req.user
+if(user){
+    const { offerType,vendors,title,description, minValue, offerAmount,startValidity,endValidity,promocode,promotype,
+        bank,bins,pincode,isActive}=<CreateOfferInputs>req.body
+        const vendor=await findVendor(user._id)
+        if(vendor){
+            const offer=await Offer.create({
+                offerType,
+                vendors:[vendor],
+                title,
+                description,
+                minValue,
+                offerAmount,
+                startValidity,
+                endValidity,
+                promocode,
+                promotype,
+                bank,
+                bins,
+                pincode,
+                isActive
+            })
+         
+            res.status(200).send(offer)
+            return;
+        }
+
+}
+res.status(400).json({message:"Unable to add offers"})
+    
+}
+export const GetOffers=async(req:Request,res:Response,next:NextFunction)=>{
+    const user=req.user
+   
+    if(user){
+     const offers=await Offer.find().populate('vendors')
+        let currentOffers=Array()
+         if (offers!== null){
+            offers.map(offer=>{
+                offer.vendors.map(vendor=>{
+                    if(vendor._id.toString()===user._id){
+                        currentOffers.push(offer)
+                    }
+                })
+                if(offer.offerType==="GENERIC"){
+                    currentOffers.push(offer)
+
+                }
+            })
+
+            res.status(200).send(currentOffers)
+            return;
+          
+        }
+
+    }
+    res.status(400).json({message:"Error in fetching offers"})
+
+
+
+}
+export const EditOffer=async(req:Request,res:Response,next:NextFunction)=>{
+    // const user=req.user
+    // if(user){
+
+    // }
+    
 }

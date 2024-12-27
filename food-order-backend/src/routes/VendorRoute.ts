@@ -1,7 +1,10 @@
 import express,{Request, Response, NextFunction} from 'express';
 import { GetVendorProfile, UpdateVendorProfile, UpdateVendorService ,AddFood,
     VendorLogin,GetFoods,UpdateVendorCoverImage, GetCurrentOrders, ProcessOrder,
-    GetOrderDetails
+    GetOrderDetails,
+    AddOffer,
+    GetOffers,
+    EditOffer
 } from '../controllers';
 import { Authenticate } from '../middlewares';
 import multer from "multer";
@@ -35,6 +38,11 @@ router.get("/foods",GetFoods)
 router.get('/orders',GetCurrentOrders)
 router.put('/order/:id/process',ProcessOrder)
 router.get('/order/:id',GetOrderDetails)
+
+//Offers
+router.get('/offers',GetOffers)
+router.post('/offer',AddOffer)
+router.put('/offer/:id',EditOffer)
 
 router.get('/',(req:Request,res:Response,next:NextFunction)=>{
     res.json('Welcome to the vendor route')

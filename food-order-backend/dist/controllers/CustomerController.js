@@ -240,7 +240,7 @@ const GetOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     const orderId = req.params.id;
     console.log('this is orderId', orderId);
     if (orderId) {
-        const order = yield models_1.Order.find({ orderId }).populate('items.food');
+        const order = yield models_1.Order.findById(orderId).populate('items.food');
         if (models_1.Order) {
             res.status(200).send(order);
             return;

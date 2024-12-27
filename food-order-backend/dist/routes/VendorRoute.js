@@ -35,6 +35,10 @@ router.get("/foods", controllers_1.GetFoods);
 router.get('/orders', controllers_1.GetCurrentOrders);
 router.put('/order/:id/process', controllers_1.ProcessOrder);
 router.get('/order/:id', controllers_1.GetOrderDetails);
+//Offers
+router.get('/offers', controllers_1.GetOffers);
+router.post('/offer', controllers_1.AddOffer);
+router.put('/offer/:id', controllers_1.EditOffer);
 router.get('/', (req, res, next) => {
     res.json('Welcome to the vendor route');
 });

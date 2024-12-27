@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProcessOrder = exports.GetOrderDetails = exports.GetCurrentOrders = exports.GetFoods = exports.AddFood = exports.UpdateVendorCoverImage = exports.UpdateVendorService = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
+exports.EditOffer = exports.GetOffers = exports.AddOffer = exports.ProcessOrder = exports.GetOrderDetails = exports.GetCurrentOrders = exports.GetFoods = exports.AddFood = exports.UpdateVendorCoverImage = exports.UpdateVendorService = exports.UpdateVendorProfile = exports.GetVendorProfile = exports.VendorLogin = void 0;
 const _1 = require(".");
 const utility_1 = require("../utility");
 const models_1 = require("../models");
@@ -204,7 +204,7 @@ exports.GetCurrentOrders = GetCurrentOrders;
 const GetOrderDetails = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const orderId = req.params.id;
     if (orderId) {
-        const order = yield models_1.Order.findOne({ orderId }).populate('items.food');
+        const order = yield models_1.Order.findById(orderId).populate('items.food');
         if (order !== null) {
             res.status(200).send(order);
             return;
@@ -217,7 +217,7 @@ exports.GetOrderDetails = GetOrderDetails;
 const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const orderId = req.params.id;
     if (orderId) {
-        const order = yield models_1.Order.findOne({ orderId }).populate('items.food');
+        const order = yield models_1.Order.findById(orderId).populate('items.food');
         const { status, time, remarks } = req.body;
         if (order) {
             order.orderStatus = status;
@@ -236,4 +236,63 @@ const ProcessOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     return;
 });
 exports.ProcessOrder = ProcessOrder;
+//***********************Offer section************************/
+const AddOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    if (user) {
+        const { offerType, vendors, title, description, minValue, offerAmount, startValidity, endValidity, promocode, promotype, bank, bins, pincode, isActive } = req.body;
+        const vendor = yield (0, _1.findVendor)(user._id);
+        if (vendor) {
+            const offer = yield models_1.Offer.create({
+                offerType,
+                vendors: [vendor],
+                title,
+                description,
+                minValue,
+                offerAmount,
+                startValidity,
+                endValidity,
+                promocode,
+                promotype,
+                bank,
+                bins,
+                pincode,
+                isActive
+            });
+            res.status(200).send(offer);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Unable to add offers" });
+});
+exports.AddOffer = AddOffer;
+const GetOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    if (user) {
+        const offers = yield models_1.Offer.find().populate('vendors');
+        let currentOffers = Array();
+        if (offers !== null) {
+            offers.map(offer => {
+                offer.vendors.map(vendor => {
+                    if (vendor._id.toString() === user._id) {
+                        currentOffers.push(offer);
+                    }
+                });
+                if (offer.offerType === "GENERIC") {
+                    currentOffers.push(offer);
+                }
+            });
+            res.status(200).send(currentOffers);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Error in fetching offers" });
+});
+exports.GetOffers = GetOffers;
+const EditOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // const user=req.user
+    // if(user){
+    // }
+});
+exports.EditOffer = EditOffer;
 //# sourceMappingURL=VendorController.js.map

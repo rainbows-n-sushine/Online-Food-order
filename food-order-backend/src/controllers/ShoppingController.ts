@@ -1,6 +1,6 @@
 import  {Request,Response,NextFunction} from "express";
 
-import {Vendor,foodDoc} from "../models"
+import {Offer, Vendor,foodDoc} from "../models"
 
 export const GetFoodAvailability=async(req:Request,res:Response,next:NextFunction)=>{
     const pincode=req.params.pincode;
@@ -80,4 +80,28 @@ export const RestaurantsById=async(req:Request,res:Response,next:NextFunction)=>
     res.status(400).send({message:"Data not found"})
     return;
 
+}
+
+/**********************Offer section****************************/
+
+// export const GetOffers=async(req:Request,res:Response,next:NextFunction)=>{
+
+
+// }
+
+export const GetAvailableOffers=async(req:Request,res:Response,next:NextFunction)=>{
+
+    const pincode=req.params.pincode
+
+    if(pincode){
+        const offers=await Offer.find({pincode, isActive:false}).populate('vendors')
+        if(offers!==null){
+            res.status(200).send(offers)
+            return;
+            
+        }
+    }
+    res.status(400).send({message:"Data not found"})
+    return;
+    
 }

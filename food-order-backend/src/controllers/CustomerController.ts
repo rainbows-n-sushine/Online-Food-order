@@ -6,7 +6,7 @@ import {
   GenerateSalt,GeneratePassword, GenerateSignature,GenerateOTP, 
   OnRequestOTP, ValidateSignature,ValidatePassword 
 } from "../utility";
-import {Customer,Order,Food} from "../models"
+import {Customer,Order,Food,Offer} from "../models"
 
 export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -364,3 +364,23 @@ res.status(400).json({message:"Cart is already empty"})
 return;
 
 }
+
+export const VerifyOffer=async(req:Request,res:Response,next:NextFunction)=>{
+  const offerId=req.params.id
+  const user=req.user
+  if(user){
+    const offer=await Offer.findById(offerId)
+    if (offer){
+      if(offer.promocode==="USER"){
+        //only can apply once per user
+
+      }else{
+     if(offer.isActive===true){
+      res.status(200).json({message:"Offer is valid", offer:offer})
+      return;
+
+    }}}
+
+  res.status(400).json({message:"Failed fetching offer"})
+   return;
+}}

@@ -94,7 +94,7 @@ export const GetAvailableOffers=async(req:Request,res:Response,next:NextFunction
     const pincode=req.params.pincode
 
     if(pincode){
-        const offers=await Offer.find({pincode, isActive:false}).populate('vendors')
+        const offers=await Offer.find({pincode, isActive:true}).populate('vendors')
         if(offers!==null){
             res.status(200).send(offers)
             return;

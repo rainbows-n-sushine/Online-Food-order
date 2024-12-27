@@ -7,6 +7,7 @@ import {
   OnRequestOTP, ValidateSignature,ValidatePassword 
 } from "../utility";
 import {Customer,Order,Food,Offer} from "../models"
+import { Transaction } from "../models/Transaction";
 
 export const CustomerSignUp=async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -384,3 +385,38 @@ export const VerifyOffer=async(req:Request,res:Response,next:NextFunction)=>{
   res.status(400).json({message:"Failed fetching offer"})
    return;
 }}
+
+export const CreatePayment=async(req:Request,res:Response,next:NextFunction)=>{
+  const user=req.user
+  const {amount,paymentMode,offerId }=req.body
+  let payableAmount=Number(amount)
+  const appliedOffer=await Offer.findById(offerId)
+  if(appliedOffer){
+    if(appliedOffer.isActive===true){
+      payableAmount=(payableAmount-appliedOffer.offerAmount)
+    }
+  
+  }
+  //perform payment gateway Charge API call
+
+
+  //create record on transaction 
+  const transaction=await Transaction.create({
+    customer:user._id,
+    vendorId:'',
+    orderId:"",
+    orderValue:payableAmount,
+    offerUsed:offerId||"NA",
+    status:"OPEN",
+    paymentMode:paymentMode,
+    paymentResponse:"Payment is cash on delivery"
+  })
+
+
+
+  //return transaction id
+  res.status(200).send(transaction)
+  return
+
+
+}

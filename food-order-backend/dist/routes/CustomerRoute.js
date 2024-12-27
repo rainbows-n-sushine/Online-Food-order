@@ -34,4 +34,6 @@ router.get('/orders', controllers_1.GetOrders);
 router.get('/order/:id', controllers_1.GetOrder);
 //Apply offers
 router.get('/offers/verify/:id', controllers_1.VerifyOffer);
+//payment
+router.post('/create-payment', controllers_1.CreatePayment);
 //# sourceMappingURL=CustomerRoute.js.map

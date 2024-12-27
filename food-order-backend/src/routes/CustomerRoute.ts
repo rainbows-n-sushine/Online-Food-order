@@ -2,7 +2,7 @@ import express,{ Request,Response,NextFunction } from "express";
 import {
     CustomerSignUp,CustomerLogin,CustomerVerify,RequestOTP,
     GetCustomerProfile,EditCustomerProfile, GetOrders, CreateOrders,
-    GetOrder,GetCart,AddToCart,DeleteCart,VerifyOffer
+    GetOrder,GetCart,AddToCart,DeleteCart,VerifyOffer,CreatePayment
 } from "../controllers";
 import { Authenticate } from "../middlewares";
 
@@ -38,6 +38,9 @@ router.get('/order/:id',GetOrder)
 
 //Apply offers
 router.get('/offers/verify/:id',VerifyOffer)
+//payment
+
+router.post('/create-payment',CreatePayment)
 
 
 export {router as CustomerRoute}

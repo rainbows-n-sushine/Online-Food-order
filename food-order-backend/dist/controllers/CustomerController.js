@@ -9,12 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerifyOffer = exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.CreatePayment = exports.VerifyOffer = exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const dto_1 = require("../dto");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const utility_1 = require("../utility");
 const models_1 = require("../models");
+const Transaction_1 = require("../models/Transaction");
 const CustomerSignUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const customerInputs = (0, class_transformer_1.plainToClass)(dto_1.CreateCustomerInputs, req.body);
     const inputErrors = yield (0, class_validator_1.validate)(customerInputs, { validationError: { target: true } });
@@ -341,4 +342,31 @@ const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.VerifyOffer = VerifyOffer;
+const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { amount, paymentMode, offerId } = req.body;
+    let payableAmount = Number(amount);
+    const appliedOffer = yield models_1.Offer.findById(offerId);
+    if (appliedOffer) {
+        if (appliedOffer.isActive === true) {
+            payableAmount = (payableAmount - appliedOffer.offerAmount);
+        }
+    }
+    //perform payment gateway Charge API call
+    //create record on transaction 
+    const transaction = yield Transaction_1.Transaction.create({
+        customer: user._id,
+        vendorId: '',
+        orderId: "",
+        orderValue: payableAmount,
+        offerUsed: offerId || "NA",
+        status: "OPEN",
+        paymentMode: paymentMode,
+        paymentResponse: "Payment is cash on delivery"
+    });
+    //return transaction id
+    res.status(200).send(transaction);
+    return;
+});
+exports.CreatePayment = CreatePayment;
 //# sourceMappingURL=CustomerController.js.map

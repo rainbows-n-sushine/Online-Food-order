@@ -290,9 +290,34 @@ const GetOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 });
 exports.GetOffers = GetOffers;
 const EditOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const user=req.user
-    // if(user){
-    // }
+    const user = req.user;
+    const offerId = req.params.id;
+    if (user && offerId) {
+        const { offerType, vendors, title, description, minValue, offerAmount, startValidity, endValidity, promocode, promotype, bank, bins, pincode, isActive } = req.body;
+        const vendor = yield (0, _1.findVendor)(user._id);
+        if (vendor) {
+            const offer = yield models_1.Offer.findById(offerId).populate('vendors');
+            offer.offerType = offerType;
+            offer.vendors = vendors;
+            offer.title = title;
+            offer.description = description;
+            offer.minValue = minValue;
+            offer.offerAmount = offerAmount;
+            offer.startValidity = startValidity;
+            offer.endValidity = endValidity;
+            offer.promocode = promocode;
+            offer.promotype = promotype;
+            offer.bank = bank;
+            offer.bins = bins;
+            offer.pincode = pincode;
+            offer.isActive = isActive;
+            const offerResult = yield offer.save();
+            res.status(200).send(offerResult);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Unable to add offers" });
+    return;
 });
 exports.EditOffer = EditOffer;
 //# sourceMappingURL=VendorController.js.map

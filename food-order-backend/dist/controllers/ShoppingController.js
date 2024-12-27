@@ -89,7 +89,7 @@ exports.RestaurantsById = RestaurantsById;
 const GetAvailableOffers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const pincode = req.params.pincode;
     if (pincode) {
-        const offers = yield models_1.Offer.find({ pincode, isActive: false }).populate('vendors');
+        const offers = yield models_1.Offer.find({ pincode, isActive: true }).populate('vendors');
         if (offers !== null) {
             res.status(200).send(offers);
             return;

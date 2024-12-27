@@ -32,4 +32,6 @@ router.delete('/delete', controllers_1.DeleteCart);
 router.post('/create-order', controllers_1.CreateOrders);
 router.get('/orders', controllers_1.GetOrders);
 router.get('/order/:id', controllers_1.GetOrder);
+//Apply offers
+router.get('/offers/verify/:id', controllers_1.VerifyOffer);
 //# sourceMappingURL=CustomerRoute.js.map

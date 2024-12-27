@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.VerifyOffer = exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const dto_1 = require("../dto");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -320,4 +320,25 @@ const DeleteCart = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     return;
 });
 exports.DeleteCart = DeleteCart;
+const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const offerId = req.params.id;
+    const user = req.user;
+    if (user) {
+        const offer = yield models_1.Offer.findById(offerId);
+        if (offer) {
+            if (offer.promocode === "USER") {
+                //only can apply once per user
+            }
+            else {
+                if (offer.isActive === true) {
+                    res.status(200).json({ message: "Offer is valid", offer: offer });
+                    return;
+                }
+            }
+        }
+        res.status(400).json({ message: "Failed fetching offer" });
+        return;
+    }
+});
+exports.VerifyOffer = VerifyOffer;
 //# sourceMappingURL=CustomerController.js.map

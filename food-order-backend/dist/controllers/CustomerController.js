@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreatePayment = exports.VerifyOffer = exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
+exports.VerifyOffer = exports.DeleteCart = exports.GetCart = exports.AddToCart = exports.GetOrder = exports.GetOrders = exports.CreateOrders = exports.validateTransaction = exports.CreatePayment = exports.EditCustomerProfile = exports.GetCustomerProfile = exports.RequestOTP = exports.CustomerVerify = exports.CustomerLogin = exports.CustomerSignUp = void 0;
 const dto_1 = require("../dto");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -172,22 +172,65 @@ const EditCustomerProfile = (req, res, next) => __awaiter(void 0, void 0, void 0
     res.status(400).json({ message: "Error in editing teh profile" });
 });
 exports.EditCustomerProfile = EditCustomerProfile;
+/*********************Create payment section*************************/
+const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { amount, paymentMode, offerId } = req.body;
+    let payableAmount = Number(amount);
+    const appliedOffer = yield models_1.Offer.findById(offerId);
+    if (appliedOffer) {
+        if (appliedOffer.isActive === true) {
+            payableAmount = (payableAmount - appliedOffer.offerAmount);
+        }
+    }
+    //perform payment gateway Charge API call
+    //create record on transaction 
+    const transaction = yield Transaction_1.Transaction.create({
+        customer: user._id,
+        vendorId: '',
+        orderId: "",
+        orderValue: payableAmount,
+        offerUsed: offerId || "NA",
+        status: "OPEN", //Failed//Success
+        paymentMode: paymentMode,
+        paymentResponse: "Payment is cash on delivery"
+    });
+    //return transaction id
+    res.status(200).send(transaction);
+    return;
+});
+exports.CreatePayment = CreatePayment;
 //*****************Order section *******************/
+const validateTransaction = (txnId) => __awaiter(void 0, void 0, void 0, function* () {
+    const currentTransaction = yield Transaction_1.Transaction.findById(txnId);
+    if (currentTransaction) {
+        if (currentTransaction.status.toLowerCase() !== "failed") {
+            return { status: true, currentTransaction };
+        }
+        return { status: false, currentTransaction };
+    }
+});
+exports.validateTransaction = validateTransaction;
 const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //Grab current login customer
     const customer = req.user;
+    const { txnId, amount, items } = req.body;
     if (customer) {
+        const { status, currentTransaction } = yield (0, exports.validateTransaction)(txnId);
+        if (!status) {
+            res.status(404).json({ message: "Error with create order" });
+            return;
+        }
         const orderId = `${Math.floor(Math.random() * 89999 + 1000)}`;
-        const cart = req.body;
         console.log('this is above the customers id');
         const profile = yield models_1.Customer.findById(customer._id);
         console.log('this is below the customers id');
-        const foods = yield models_1.Food.find().where('_id').in(cart.map(item => item._id)).exec();
+        const foods = yield models_1.Food.find().where('_id').in(items.map(item => item._id)).exec();
         let cartItems = Array();
         let netAmount = 0.0;
         let vendorId;
         foods.map(food => {
-            cart.map(({ _id, unit }) => {
+            items.map(({ _id, unit }) => {
                 if (food._id == _id) {
                     vendorId = food.vendorId;
                     netAmount += (food.price * unit);
@@ -200,23 +243,22 @@ const CreateOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 orderId: orderId,
                 items: cartItems,
                 totalAmount: netAmount,
+                paidAmount: amount,
                 orderDate: new Date(),
-                paidThrough: "COD",
-                paymentResponse: "",
                 orderStatus: "waiting",
                 deliveryId: "",
-                appliedOffers: false,
-                offerId: null,
                 readyTime: 45,
                 vendorId: vendorId
             });
-            if (currentOrder) {
-                profile.cart = [];
-                profile.orders.push(currentOrder);
-                yield profile.save();
-                res.status(200).send(currentOrder);
-                return;
-            }
+            profile.cart = [];
+            profile.orders.push(currentOrder);
+            currentTransaction.vendorId = vendorId;
+            currentTransaction.orderId = orderId;
+            currentTransaction.status = 'CONFIRMED';
+            yield currentTransaction.save();
+            yield profile.save();
+            res.status(200).send(profile);
+            return;
         }
     }
     res.status(400).json({
@@ -342,31 +384,4 @@ const VerifyOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.VerifyOffer = VerifyOffer;
-const CreatePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    const { amount, paymentMode, offerId } = req.body;
-    let payableAmount = Number(amount);
-    const appliedOffer = yield models_1.Offer.findById(offerId);
-    if (appliedOffer) {
-        if (appliedOffer.isActive === true) {
-            payableAmount = (payableAmount - appliedOffer.offerAmount);
-        }
-    }
-    //perform payment gateway Charge API call
-    //create record on transaction 
-    const transaction = yield Transaction_1.Transaction.create({
-        customer: user._id,
-        vendorId: '',
-        orderId: "",
-        orderValue: payableAmount,
-        offerUsed: offerId || "NA",
-        status: "OPEN",
-        paymentMode: paymentMode,
-        paymentResponse: "Payment is cash on delivery"
-    });
-    //return transaction id
-    res.status(200).send(transaction);
-    return;
-});
-exports.CreatePayment = CreatePayment;
 //# sourceMappingURL=CustomerController.js.map

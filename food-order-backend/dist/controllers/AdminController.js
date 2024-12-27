@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetVendorByID = exports.GetVendors = exports.CreateVendor = exports.findVendor = void 0;
+exports.GetTransaction = exports.GetTransactions = exports.GetVendorByID = exports.GetVendors = exports.CreateVendor = exports.findVendor = void 0;
 const models_1 = require("../models");
 const utility_1 = require("../utility");
+const Transaction_1 = require("../models/Transaction");
 const findVendor = (id, email) => __awaiter(void 0, void 0, void 0, function* () {
     if (email) {
         const vendor = yield models_1.Vendor.findOne({ email: email });
@@ -93,4 +94,27 @@ const GetVendorByID = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.GetVendorByID = GetVendorByID;
+const GetTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const transactions = yield Transaction_1.Transaction.find();
+    if (transactions) {
+        res.status(200).send(transactions);
+        return;
+    }
+    res.status(400).json({ message: "Transactions data is not available" });
+    return;
+});
+exports.GetTransactions = GetTransactions;
+const GetTransaction = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const txnId = req.params.id;
+    if (txnId) {
+        const transaction = yield Transaction_1.Transaction.findById(txnId);
+        if (transaction) {
+            res.status(200).send(transaction);
+            return;
+        }
+    }
+    res.status(400).json({ message: "Transaction data is not available" });
+    return;
+});
+exports.GetTransaction = GetTransaction;
 //# sourceMappingURL=AdminController.js.map

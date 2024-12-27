@@ -11,6 +11,9 @@ exports.AdminRoute = router;
 router.post('/vendor', controllers_1.CreateVendor);
 router.get('/vendors', controllers_1.GetVendors);
 router.get('/vendor/:id', controllers_1.GetVendorByID);
+///Transaction info
+router.get('/transactions', controllers_1.GetTransactions);
+router.get('/transaction/:id', controllers_1.GetTransaction);
 router.get('/', (req, res, next) => {
     res.json("Welcome to the Admin route");
 });

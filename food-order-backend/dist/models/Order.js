@@ -43,14 +43,11 @@ const OrderSchema = new mongoose_1.Schema({
             unit: { type: Number, required: true }
         }],
     totalAmount: { type: Number },
+    paidAmount: { type: Number },
     orderDate: { type: Date, required: true },
-    paidThrough: { type: String, required: true },
-    paymentResponse: { type: String },
     orderStatus: { type: String },
     remarks: { type: String },
     deliveryId: { type: String },
-    appliedOffers: { type: Boolean },
-    offerId: { type: String },
     readyTime: { type: Number },
 }, { toJSON: {
         transform(doc, ret) {
